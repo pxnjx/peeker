@@ -1,0 +1,2477 @@
+/* ============================================================
+   Base
+   ============================================================ */
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+
+/* Viewport-locked app shell: the only scroller is .main-area, so the page
+   itself never moves under the sticky sidebar / topbar. */
+
+html:has(.app-shell),
+html:has(.app-shell) body {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: var(--text-md);
+    /* measured 15px default UI body */
+    line-height: var(--leading);
+    font-feature-settings: "ss01";
+    /* R7: measured stylistic set, on for every role */
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    /* Horizontal bleed lives on the page scroller so sticky nav stays sticky. */
+    overflow-x: clip;
+}
+
+::selection {
+    background: var(--accent-soft);
+}
+
+h1,
+h2,
+h3 {
+    margin: 0;
+    font-weight: 600;
+    letter-spacing: var(--tracking-display);
+    /* R7: the brand's negative tracking */
+}
+
+code,
+pre {
+    font-family: var(--font-mono);
+    font-size: var(--text-caption);
+}
+
+a {
+    color: var(--accent);
+}
+
+
+/* Tabular figures on anything numeric, the measured money-cell detail. */
+
+.num,
+.value,
+.date-cell,
+.rating-cell,
+.filter-count {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+}
+
+.muted {
+    color: var(--muted);
+    font-size: var(--text-caption);
+    letter-spacing: var(--tracking-caption);
+    /* measured caption */
+}
+
+.container {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    /* spacing lives on .main-col (Kwerry .main) */
+}
+
+
+/* ============================================================
+   App shell: sidebar rail, sticky top bar, mobile nav drawer
+   Z-index scale (systemic layers only): 1 sticky table header, 20 topbar,
+   30 theme corner control, 45 sign-out confirm, 60 nav scrim, 61 mobile
+   drawer, 62 profile popover, 100 modal backdrop.
+   Nothing else claims a level.
+   ============================================================ */
+
+.app-shell {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    /* Kwerry rail width */
+    height: 100vh;
+    /* fallback */
+    height: 100dvh;
+    /* viewport-locked: only .main-area scrolls */
+    overflow: hidden;
+}
+
+
+/* Kwerry sidebar: gray surface rail, white cards live in the main column. */
+
+.sidebar {
+    position: sticky;
+    top: 0;
+    width: 220px;
+    /* Kwerry rail */
+    flex: none;
+    height: 100vh;
+    /* fallback */
+    height: 100dvh;
+    /* iOS address bar safe */
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    /* Kwerry --sp-4 */
+    padding: 32px 16px;
+    /* Kwerry --sp-4 --sp-2 */
+    background: var(--panel-2);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    /* Kwerry */
+    padding: 0 8px;
+    /* Kwerry */
+    min-width: 0;
+}
+
+
+/* Text column must shrink, or the tagline forces a sideways scrollbar. */
+
+.brand>.brand-text,
+.brand>div {
+    min-width: 0;
+    flex: 1;
+}
+
+
+/* Brand mark: the pin stands on its own, no plate behind it. The 36px box is
+   kept purely so the brand row keeps its rhythm now that nothing draws a frame
+   to define the size. */
+
+.brand-mark {
+    width: 36px;
+    height: 36px;
+    color: var(--text);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+
+/* Artwork fills more of the box now that there is no hairline around it. */
+
+.brand-mark svg {
+    width: 30px;
+    height: 30px;
+    display: block;
+    flex: none;
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.brand-text strong {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
+    line-height: 1.2;
+}
+
+.brand-text span {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.35;
+    /* Tagline wraps to two lines inside the 220px rail instead of truncating. */
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.side-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+
+/* Kwerry .side-link: icon + label on the left, count chip pinned right. */
+
+.side-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 12px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    min-height: 40px;
+}
+
+.side-link:hover {
+    color: var(--text);
+    background: var(--panel);
+    border-color: var(--border);
+    opacity: 1;
+}
+
+
+/* Active item: panel plate + ink border (Kwerry .side-link.active). */
+
+.side-link.active {
+    color: var(--text);
+    background: var(--panel);
+    border-color: var(--text);
+    font-weight: 600;
+}
+
+.side-link .icon {
+    color: currentColor;
+    flex: none;
+}
+
+.side-link .side-label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+/* Keep <button> triggers visually identical to <a> links. */
+
+button.side-link {
+    width: 100%;
+    text-align: left;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+}
+
+button.side-link:hover {
+    color: var(--text);
+    background: var(--panel);
+    border-color: var(--border);
+}
+
+
+/* Legacy alias: older markup used .nav-link. Keep it identical. */
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 12px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    min-height: 40px;
+}
+
+.nav-link:hover {
+    color: var(--text);
+    background: var(--panel);
+    border-color: var(--border);
+    opacity: 1;
+}
+
+.nav-link.active {
+    color: var(--text);
+    background: var(--panel);
+    border-color: var(--text);
+    font-weight: 600;
+}
+
+
+/* Count chips inside nav. Neutral by default, amber only when it is a
+   warning state (open alerts), which keeps R2 honest. */
+
+.pill {
+    display: inline-block;
+    min-width: 20px;
+    margin-left: auto;
+    /* count chips pinned right (Kwerry actions-cell) */
+    text-align: center;
+    padding: 1px var(--space-2);
+    /* 1px keeps the chip on the text baseline */
+    border-radius: var(--radius-pill);
+    background: var(--chip);
+    color: var(--muted);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.pill.warn {
+    background: var(--amber-soft);
+    color: var(--amber);
+}
+
+
+/* Sidebar bottom stack — profile row on top, studio signature as the footer
+   (Kwerry .side-bottom + .side-foot + .side-sign). */
+
+.side-bottom {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-top: auto;
+}
+
+.side-bottom .side-foot {
+    margin-top: 0;
+}
+
+.side-foot {
+    padding: var(--space-2) 4px 0;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    margin-top: auto;
+}
+
+
+/* Studio signature — wordmark + credit lifted from scrambled_head.studio
+   (mono, muted, small print under the profile trigger) */
+
+.side-sign {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 0 12px;
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    line-height: 1.5;
+    /* letter-spacing: 0.08em; */
+    color: var(--muted);
+}
+
+.side-sign-name {
+    font-weight: 600;
+    font-size: 8.5px;
+}
+
+a.side-sign-name {
+    color: var(--muted);
+    text-decoration: none;
+    text-underline-offset: 2px;
+}
+
+a.side-sign-name:hover {
+    color: var(--text);
+    opacity: 1;
+    text-decoration: underline;
+}
+
+.side-sign-meta {
+    opacity: 0.85;
+    font-size: 6.5px;
+}
+
+
+/* Profile trigger row — sits above the footer strip (Kwerry .side-user-menu). */
+
+.side-user-menu {
+    position: relative;
+    width: 100%;
+}
+
+
+/* Kwerry user trigger: full-width side-link that opens the popover. */
+
+.user-trigger {
+    width: 100%;
+    justify-content: flex-start;
+}
+
+.user-label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+/* Kwerry user popover: floats right of the rail, not inside it. */
+
+
+/* Portalled to <body> and positioned from the trigger's rect, so it escapes the
+   sidebar's overflow clip. Sits directly ABOVE the profile row — translateY(-100%)
+   puts its bottom edge on the trigger's top edge, and the inline width matches the
+   trigger, so the menu and the sign-out confirm stack on the profile as one column
+   instead of floating out over the page beside the rail. */
+
+.user-popover {
+    position: fixed;
+    transform: translateY(-100%);
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px;
+    z-index: 40;
+    box-shadow: var(--shadow-pop);
+}
+
+.user-popover-head {
+    padding: 8px 10px;
+    font-size: 11px;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4px;
+    line-height: 1.4;
+}
+
+.user-popover-head strong {
+    display: block;
+    color: var(--text);
+    font-size: 12px;
+    margin-top: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-popover-item {
+    /* Flex row so the sign-out glyph sits beside the label; the shared .icon
+       rule sizes it to 1em and it paints in currentColor, so it follows the
+       warn hue and the hover inversion below without any extra rule.
+       The row is the session-ending action, so it wears the same amber as the
+       confirm button (R2) rather than plain ink. */
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    text-align: left;
+    padding: 9px 10px;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--amber);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+    cursor: pointer;
+    min-height: 0;
+}
+
+
+/* Amber-on-tint hover, matching the confirm's warning surface.
+
+   :not(:disabled) is load-bearing: the shared `button:hover:not(:disabled)`
+   rule scores 0-2-1 and would otherwise beat this 0-2-0 selector, filling the
+   row with the primary ink instead of the warning hue. */
+
+.user-popover-item:hover:not(:disabled) {
+    background: var(--amber-soft);
+    color: var(--amber);
+    opacity: 1;
+}
+
+
+/* Legacy alias for older markup (no live references remain). */
+
+.sidebar-foot {
+    margin-top: auto;
+    padding: var(--space-2) 4px 0;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.4;
+}
+
+.sidebar-foot a {
+    color: var(--muted);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.sidebar-foot a:hover {
+    color: var(--text);
+    text-decoration: underline;
+}
+
+
+/* Kwerry .main: centred content column; header pins at y=0, data scrolls below. */
+
+.main-area {
+    min-width: 0;
+    min-height: 0;
+    /* lets the column scroll inside the locked shell */
+    height: 100vh;
+    /* fallback */
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    /* this is the only page scroller: header pins, data scrolls */
+    overscroll-behavior-y: contain;
+}
+
+.main-col {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+    max-width: 1120px;
+    /* Kwerry .main */
+    margin: 0 auto;
+    /* centred — leftover space splits evenly, not piled right */
+    padding: 0 24px 24px;
+    /* Kwerry: no top padding, header starts at y=0 */
+    display: flex;
+    flex-direction: column;
+}
+
+@media (min-width: 1600px) {
+    .main-col {
+        max-width: 1280px;
+        /* Kwerry wide-screen breathing room */
+    }
+}
+
+
+/* Theme switch, pinned to the main area's top-right corner.
+   Fixed, not absolute: .main-area is the page scroller, so an absolute child
+   would scroll away with the content. No ancestor here sets transform, filter
+   or contain, so `fixed` still resolves against the viewport — and the main
+   area is the shell's right-hand column, so its corner is the viewport's.
+   Sits above the topbar's opaque background (z 20), and the top inset keeps it
+   clear of the Refresh button on the row below. */
+
+.main-area>.theme-toggle {
+    position: fixed;
+    top: 1px;
+    /* tucked into the corner, above the topbar's own top padding */
+    right: 10px;
+    z-index: 30;
+}
+
+.topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    /* Kwerry: title block left, controls on its baseline */
+    justify-content: space-between;
+    gap: 16px;
+    /* Kwerry --sp-2 */
+    flex-wrap: wrap;
+    padding: 32px 0 16px;
+    /* Kwerry header rhythm */
+    background: var(--bg);
+    /* Kwerry: same paper as the page, flat, no blur/shadow */
+    border-bottom: 1px solid var(--border);
+    /* Kwerry header divider */
+    margin-bottom: 32px;
+    /* Kwerry */
+}
+
+
+/* Gap under the pinned bar so scrolled content slips out of sight with
+   breathing room instead of butting against the divider (Kwerry ::after). */
+
+.topbar::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    height: 16px;
+    /* Kwerry --sp-2 */
+    background: var(--bg);
+    pointer-events: none;
+}
+
+
+/* Kwerry header: micro eyebrow over a tight display title. */
+
+.topbar-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    flex: 1 1 280px;
+    /* Kwerry: title block grows, actions wrap below on narrow */
+    min-width: 0;
+}
+
+
+/* Dashboard eyebrow is ink (Kwerry); the landing keeps its muted micro-cap. */
+
+.topbar-heading .eyebrow {
+    display: inline-block;
+    font-size: 12px;
+    /* Kwerry */
+    font-weight: 600;
+    letter-spacing: 2px;
+    /* Kwerry tracked-out caps */
+    text-transform: uppercase;
+    color: var(--text);
+}
+
+.topbar-title {
+    margin: 8px 0 0;
+    /* Kwerry h1 */
+    font-size: 40px;
+    /* Kwerry display */
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.6px;
+    /* Kwerry */
+    white-space: nowrap;
+}
+
+
+/* Kwerry pages pair the title with one muted line; it lives in the sticky
+   topbar so it never scrolls away. */
+
+.topbar-sub {
+    margin: 8px 0 0;
+    /* Kwerry header p */
+    color: var(--muted);
+    font-size: var(--text-caption);
+    letter-spacing: var(--tracking-caption);
+    max-width: 560px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+/* Reused by .panel-head (BusinessTable) as a plain flex row. */
+
+.topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-wrap: nowrap;
+}
+
+
+/* The "synced …" stamp sits immediately left of Refresh. `.topbar-actions > *`
+   already gives it the 36px control height, so centring the text in that box is
+   what keeps the 12px caption on the button's line rather than riding high. */
+
+.topbar-actions>.sync-label {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+
+/* One control height (36px) across refresh, select, theme, sign out. */
+
+.topbar-actions>*,
+.refresh-setting,
+.refresh-setting select,
+.topbar-actions button {
+    height: 36px;
+    min-height: 36px;
+    box-sizing: border-box;
+}
+
+.refresh-setting {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--muted);
+    /* A control row, not a field caption — see the .field label note. */
+    text-transform: none;
+}
+
+.refresh-setting select {
+    width: auto;
+    min-width: 96px;
+    height: 36px;
+    min-height: 36px;
+    padding: 0 var(--space-3);
+    font-size: var(--text-caption);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--panel);
+    color: var(--text);
+}
+
+.topbar-actions button {
+    padding: 0 var(--space-4);
+}
+
+.topbar-actions button.ghost {
+    border-radius: var(--radius-pill);
+}
+
+/* Mobile nav drawer + scrim + burger. These exist only under 900px; above it the
+   .sidebar rail is the nav. Keeping them in the DOM (rather than unmounting)
+   lets the drawer's slide-out play, and display:none above the breakpoint is
+   what keeps the desktop markup untouched. */
+
+.topbar-burger,
+.mobile-nav,
+.nav-scrim {
+    display: none;
+}
+
+@media (max-width: 900px) {
+    .app-shell {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .sidebar {
+        display: none;
+    }
+    .main-col {
+        padding: 0 16px 16px;
+        /* Kwerry mobile rhythm */
+    }
+    .topbar {
+        padding: 16px 0 8px;
+        /* Kwerry mobile rhythm */
+        margin-bottom: 16px;
+    }
+    .topbar-title {
+        font-size: 32px;
+        /* Kwerry mobile h1 */
+    }
+    /* Long hints would push the actions off-screen; keep one compact line. */
+    .topbar-sub {
+        max-width: 40vw;
+    }
+    .container {
+        padding: var(--space-4) var(--space-4) var(--space-6);
+    }
+    /* Burger: leads the topbar row. 40px to match the rail's control height. */
+    .topbar-burger {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        flex: 0 0 auto;
+        font-size: 20px;
+        /* .icon sizes the glyph to 1em, so this sets its box */
+        padding: 0;
+        background: transparent;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        color: var(--text);
+        cursor: pointer;
+        order: -1;
+        /* ahead of .topbar-heading on the shared flex row */
+        margin-right: var(--space-3);
+    }
+
+    .topbar-burger:hover {
+        background: var(--panel);
+        border-color: var(--border-strong);
+    }
+
+    /* Scrim behind the drawer: a tap dismisses the nav, and it dims the page so
+       the drawer reads as a layer above it rather than beside it. */
+    .nav-scrim {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 60;
+        background: var(--backdrop);
+    }
+
+    /* Drawer: slides in from the left. Width is capped so a 390px screen still
+       shows a sliver of the page edge — the scrim is the affordance that more
+       content exists behind it. transform + visibility (not display) so the
+       slide-out can play. */
+    .mobile-nav {
+        display: flex;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 61;
+        width: min(280px, 86vw);
+        flex-direction: column;
+        background: var(--panel-2);
+        /* same surface as the rail it stands in for */
+        border-right: 1px solid var(--border);
+        box-shadow: var(--shadow-pop);
+        transform: translateX(-102%);
+        visibility: hidden;
+        transition: transform var(--duration-base) ease, visibility 0s var(--duration-base);
+    }
+
+    .mobile-nav.open {
+        transform: translateX(0);
+        visibility: visible;
+        transition: transform var(--duration-base) ease;
+    }
+
+    /* Head: brand + close. Pinned, so there is always a way out of the drawer. */
+    .mobile-nav-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: var(--space-2);
+        padding: var(--space-4);
+        border-bottom: 1px solid var(--border);
+    }
+
+    .mobile-nav-head .brand {
+        padding: 0;
+        /* the rail insets its brand; the head carries its own padding */
+    }
+
+    .mobile-nav-close {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        flex: none;
+        font-size: 16px;
+        background: transparent;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        color: var(--muted);
+        cursor: pointer;
+    }
+
+    .mobile-nav-close:hover {
+        color: var(--text);
+        background: var(--panel);
+    }
+
+    /* The link list scrolls; the foot below stays put. min-height:0 is what lets
+       this shrink inside the flex column instead of pushing the foot off-screen. */
+    .mobile-nav-scroll {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-1);
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: var(--space-3) var(--space-2);
+    }
+
+    /* Reuses .side-link wholesale, so both navs are the same object; only the
+       touch target grows past the rail's 40px. */
+    .mobile-nav-link {
+        min-height: 44px;
+        white-space: nowrap;
+    }
+
+    /* Account + studio credit pinned to the foot, mirroring .side-bottom. */
+    .mobile-nav-foot {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+        padding: var(--space-3) var(--space-4) var(--space-4);
+        border-top: 1px solid var(--border);
+    }
+
+    .mobile-user-trigger {
+        width: 100%;
+        justify-content: flex-start;
+        min-height: 44px;
+    }
+
+    /* The popover is portalled to <body>, so it escapes the drawer's stacking
+       context but keeps its own — it has to clear the drawer's z-index itself. */
+    .user-popover {
+        z-index: 62;
+    }
+}
+
+
+/* ============================================================
+   Page scaffolding: head, sections, panels, stat cards.
+   Kwerry pages repeat eyebrow + title in-flow; the topbar already shows it
+   sticky, so per-page heads are hidden and the topbar carries the hint.
+   ============================================================ */
+
+.page-head {
+    display: none;
+}
+
+.section {
+    margin-bottom: var(--space-6);
+    scroll-margin-top: var(--space-7);
+}
+
+.section:last-child {
+    margin-bottom: 0;
+}
+
+.section-hint {
+    color: var(--muted);
+    font-size: var(--text-caption);
+    letter-spacing: var(--tracking-caption);
+}
+
+.section> :last-child,
+.grid-2:last-child>.panel {
+    /* The grid's own gap handles its internals; a panel after the grid still
+     needs its margin, otherwise it butts against the row above. */
+    margin-bottom: 0;
+}
+
+.grid-2 {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-5);
+    align-items: start;
+}
+
+
+/* min-width 1180px: below that the "Yours vs competitors" header cells
+   ("Avg rating" widest at 90px) wrap to two lines each and the table collides
+   with itself. Also shared by the overview page's two-column rows, which
+   carry the same tables, so the breakpoint is on the grid, not the panel. */
+
+@media (max-width: 1179px) {
+    .grid-2 {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-5);
+    margin-bottom: var(--space-5);
+    box-shadow: var(--shadow-card);
+}
+
+.panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-3);
+}
+
+.panel-head h2 {
+    font-size: var(--text-sm);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+
+/* A heading that sits over a list needs a floor, otherwise the panel reads as one
+   undifferentiated block. `:has` keeps it off the panels whose next element is a table,
+   because a table already arrives with its own header band and the two lines would double up. */
+
+.panel-head:has(+ .scroll-list),
+.panel-head:has(+ .reviews-list) {
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.stats-grid {
+    display: grid;
+    /* Three columns, not four: this row is now crawler health only (6 tiles),
+       and 4 left a half-empty second row. 3 fills two even rows. */
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-3);
+    margin-bottom: var(--space-5);
+}
+
+
+/* The quick links lead the Overview, so they need a gap below rather than the
+   inline margin they carried when they sat at the foot of the page. The
+   .stats-grid that follows only carries a bottom margin of its own. */
+
+.quick-links {
+    margin-bottom: var(--space-5);
+}
+
+@media (max-width: 720px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.stat-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-3) var(--space-4);
+    box-shadow: var(--shadow-card);
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.stat-card .label {
+    color: var(--muted);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.stat-card .value {
+    font-size: var(--text-2xl);
+    font-weight: 600;
+    letter-spacing: var(--tracking-display);
+    line-height: 1.15;
+    /* the label above is 12px; the default 1.5 leading left the pair unbalanced */
+    margin-top: var(--space-1);
+}
+
+
+/* R2: these three rules are the only place a status hue reaches a number,
+   and each one maps to a state the operator has to read at a glance. */
+
+.stat-card.tone-good .value {
+    color: var(--green);
+}
+
+.stat-card.tone-warn .value {
+    color: var(--amber);
+}
+
+.stat-card.tone-danger .value {
+    color: var(--red);
+}
+
+.quick-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.quick-link:hover {
+    border-color: var(--border-strong);
+    background: var(--panel-2);
+}
+
+.scroll-list {
+    max-height: 420px;
+    overflow-y: auto;
+    padding-right: var(--space-1);
+}
+
+
+/* ============================================================
+   Tables
+   ============================================================ */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-base);
+}
+
+th {
+    text-align: left;
+    color: var(--muted);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: var(--space-2) var(--space-3);
+    border-bottom: 1px solid var(--border);
+}
+
+td {
+    padding: var(--space-3);
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+.table-wrap {
+    overflow: auto;
+    margin-top: var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+}
+
+.table-wrap table {
+    min-width: 720px;
+}
+
+.table-wrap td {
+    vertical-align: top;
+}
+
+.table-wrap td .actions {
+    padding-top: 2px;
+    /* optical: lines the icon buttons up with the name cell */
+}
+
+.table-wrap th:nth-child(1),
+.table-wrap td:nth-child(1) {
+    width: 28%;
+    min-width: 190px;
+}
+
+.table-wrap th:nth-child(5),
+.table-wrap td:nth-child(5) {
+    width: 15%;
+}
+
+
+/* Comparison tables have short fixed headers; a wrapped "Avg rating" is what
+   made the panel collide with itself at narrow widths. */
+
+.grid-2 table th {
+    white-space: nowrap;
+}
+
+/* The one table on the site not inside a .table-wrap. It sits flush in its
+   panel and is only three rows, so .table-wrap's frame, 720px floor and sticky
+   header are all wrong for it -- but without any overflow container the cells
+   spill past the panel's border once the column gets narrower than the table's
+   intrinsic minimum. This is that guard, and nothing else. */
+
+.table-scroll {
+    overflow: auto;
+}
+
+/* Phone widths: a 390px viewport leaves the panel a 276px content column while
+   the table's floor (nowrap headers + 12px cell padding) is 336px. Rather than
+   make a four-number summary scroll sideways, let the header labels wrap onto
+   two lines and tighten the horizontal padding, which drops the floor to 279px
+   -- inside a 390px phone's column. Declared after .grid-2 table th so the
+   nowrap is genuinely overridden. */
+
+@media (max-width: 560px) {
+    .grid-2 table th,
+    .grid-2 table td {
+        padding-left: var(--space-2);
+        padding-right: var(--space-2);
+    }
+
+    .grid-2 table th {
+        white-space: normal;
+    }
+}
+
+/* 360px is still a common Android width and 279px leaves it a few pixels short
+   -- enough for a scrollbar to appear. Tighten the horizontal padding once more
+   and step the header labels down a size (11px is already the caption step this
+   dashboard uses elsewhere); the floor lands on 246px, exactly a 360px column.
+   The scroll container above is the backstop for anything narrower still. */
+
+@media (max-width: 400px) {
+    .grid-2 table th,
+    .grid-2 table td {
+        padding-left: var(--space-1);
+        padding-right: var(--space-1);
+    }
+
+    .grid-2 table th {
+        font-size: var(--text-xs);
+    }
+}
+
+.table-wrap thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--panel-2);
+}
+
+.table-wrap tbody tr:hover {
+    background: var(--accent-softer);
+}
+
+.table-wrap tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.num,
+th.num,
+td.num {
+    text-align: right;
+    letter-spacing: var(--tracking-tabular);
+    white-space: nowrap;
+}
+
+
+/* ============================================================
+   Forms
+   ============================================================ */
+
+.row {
+    display: flex;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    flex: 1;
+    min-width: 160px;
+}
+
+
+/* Kwerry labels: uppercase micro-caps above the field.
+   Scoped to .field on purpose. A bare `label` here also caught the two labels
+   that are controls, not captions — the restore <label class="file-btn"> and
+   the refresh-interval <label> — and uppercased their text, so "Restore from
+   file" rendered as RESTORE FROM FILE next to a sentence-case button. */
+
+.field label,
+.field>label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 var(--space-1);
+}
+
+input:not([type]),
+input[type="text"],
+input[type="url"],
+input[type="password"],
+input[type="number"],
+input[type="email"],
+select {
+    background: var(--panel);
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    min-height: 44px;
+    padding: 12px 20px;
+    font: 400 12px/1.5 var(--font-sans);
+    width: 100%;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input::placeholder {
+    color: var(--muted);
+}
+
+select option {
+    background: var(--panel);
+    color: var(--text);
+}
+
+input:hover,
+select:hover {
+    border-color: var(--text);
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--ring);
+    /* R1: focus rings are an allowed accent */
+}
+
+input[type="file"] {
+    background: var(--panel);
+    border: 1px dashed var(--border-input);
+    border-radius: var(--radius-sm);
+    color: var(--muted);
+    /* 7px, not --space-2 (8px): the 28px file-selector button + this padding + the
+     1px borders lands exactly on the 44px control height the selects use. */
+    padding: 7px var(--space-3);
+    font-size: var(--text-caption);
+    width: 100%;
+    min-height: 44px;
+}
+
+input[type="file"]::file-selector-button {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: var(--radius-pill);
+    min-height: 28px;
+    padding: 4px 12px;
+    margin-right: var(--space-2);
+    font: 600 11px/1.5 var(--font-sans);
+    cursor: pointer;
+}
+
+
+/* Performance upload row: Business shown → Fallback → CSV → Upload.
+   The CSV field carries flex-grow inline and absorbs the slack; Upload keeps
+   its own size and jumps to the far right, so the row reads as controls on the
+   left, action on the right — including on the wrapped line after 800px. */
+
+.perf-controls>.primary {
+    flex: 0 0 auto;
+    margin-left: auto;
+}
+
+
+/* ============================================================
+   Buttons — Kwerry geometry.
+   Filled ink CTA (44px, 6px radius, 12px/600, opacity hover);
+   ghost is the outline twin. Electric blue stays on links/focus only.
+   ============================================================ */
+
+button,
+a.btn-run,
+a.btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+    cursor: pointer;
+    font: 600 12px/1.5 var(--font-sans);
+    letter-spacing: 0.3px;
+    border-radius: var(--radius-pill);
+    min-height: 44px;
+    padding: 13px 32px;
+    white-space: nowrap;
+    transition: opacity 0.15s ease, background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+
+/* Default button is the filled primary, same as Kwerry. */
+
+button,
+a.btn-run {
+    background: var(--btn-bg);
+    color: var(--on-btn);
+    border: 0;
+}
+
+button:hover:not(:disabled),
+a.btn-run:hover {
+    opacity: 0.8;
+    background: var(--btn-bg);
+    color: var(--on-btn);
+}
+
+button:active:not(:disabled),
+a.btn-run:active {
+    opacity: 0.6;
+}
+
+button:disabled {
+    opacity: 0.45;
+    cursor: wait;
+}
+
+
+/* Outline twin (Kwerry .btn-ghost). */
+
+button.ghost,
+a.btn-ghost {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+button.ghost:hover:not(:disabled),
+a.btn-ghost:hover {
+    background: var(--text);
+    border-color: var(--text);
+    color: var(--on-btn);
+    opacity: 1;
+}
+
+
+/* Explicit filled alias, same paint as default. */
+
+button.primary {
+    background: var(--btn-bg);
+    border: 0;
+    color: var(--on-btn);
+}
+
+button.primary:hover:not(:disabled) {
+    opacity: 0.8;
+    background: var(--btn-bg);
+}
+
+button.primary:active:not(:disabled) {
+    opacity: 0.6;
+}
+
+
+/* R2: the destructive affordance borrows the danger hue and nothing else does. */
+
+button.danger {
+    background: transparent;
+    border: 1px solid var(--red);
+    color: var(--red);
+}
+
+button.danger:hover:not(:disabled) {
+    background: var(--red-soft);
+    border-color: var(--red);
+    color: var(--red);
+    opacity: 1;
+}
+
+
+/* R2 warn hue, same outline shape as .danger. Signing out ends the session but
+   destroys no data, so it sits one step below .danger: amber, not red. The
+   label paints in --amber and the glyph inherits it via currentColor, so icon
+   and text can never drift apart. */
+
+button.warning {
+    background: transparent;
+    border: 1px solid var(--amber);
+    color: var(--amber);
+}
+
+/* Hover fills the button with the warning hue instead of only tinting it, so
+   the destructive action is unmistakable at the moment of the click. The label
+   switches to --on-amber, which is white on light-mode amber and near-black on
+   dark-mode amber, so the filled state clears AA in both. */
+
+button.warning:hover:not(:disabled) {
+    background: var(--amber);
+    border-color: var(--amber);
+    color: var(--on-amber);
+    opacity: 1;
+}
+
+
+/* Kwerry .btn-sm */
+
+button.small {
+    min-height: 36px;
+    padding: 8px 18px;
+    font-size: 12px;
+}
+
+
+/* Icon-only row actions (run / edit / delete): square hit area, glyph sized off the
+   local font because .icon is 1em. R3 keeps them pills like every other control. */
+
+
+/* Kwerry .btn-mini: compact icon row action. */
+
+button.row-action {
+    width: 32px;
+    height: 32px;
+    min-height: 28px;
+    padding: 0;
+    gap: 0;
+    justify-content: center;
+    font-size: 11px;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+}
+
+button.row-action:hover:not(:disabled) {
+    color: var(--text);
+    border-color: var(--text);
+    opacity: 1;
+}
+
+
+/* ============================================================
+   Icons. Every glyph is an inline SVG from components/icons.tsx. They draw
+   with currentColor so they follow the theme, and size off the local font.
+   ============================================================ */
+
+.icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    flex: none;
+    /* never squashed inside flex rows such as chips and banners */
+    vertical-align: -0.13em;
+    /* optical: sits on the text baseline */
+}
+
+.icon.spin {
+    animation: icon-spin 0.9s linear infinite;
+}
+
+@keyframes icon-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* ============================================================
+   Badges and tags
+   ============================================================ */
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-pill);
+    font-size: var(--text-xxs);
+    font-weight: 400;
+    letter-spacing: 0.1px;
+    /* measured micro-cap */
+    text-transform: uppercase;
+}
+
+
+/* No dots on badges: taste-SKILL 9.F bans decorative status dots, and the
+   uppercase label already carries the state. */
+
+
+/* R2: one hue per pipeline state, and queued is deliberately neutral so the
+   eye reads movement (amber) and trouble (orange, red) first. */
+
+.badge.queued {
+    background: var(--chip);
+    color: var(--status-neutral);
+}
+
+.badge.scraping {
+    background: var(--amber-soft);
+    color: var(--amber);
+}
+
+
+/* The scraping badge used to pulse a dot; with the dot gone (9.F) it is a
+   static state label, which is what MOTION_INTENSITY 3 asks for. */
+
+.badge.idle {
+    background: var(--green-soft);
+    color: var(--green);
+}
+
+.badge.backoff {
+    background: var(--orange-soft);
+    color: var(--orange);
+}
+
+.badge.parked {
+    background: var(--red-soft);
+    color: var(--red);
+}
+
+
+/* measured pill-tag-soft: the only lavender chip in the app, and it marks
+   which side of the comparison a business sits on. */
+
+.kind-badge {
+    display: inline-block;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-pill);
+    font-size: var(--text-xxs);
+    font-weight: 400;
+    letter-spacing: 0.1px;
+    /* measured micro-cap, same type as the reference tag */
+    text-transform: uppercase;
+}
+
+.kind-badge.own {
+    background: var(--tag-own-bg);
+    color: var(--tag-own-text);
+}
+
+.kind-badge.competitor {
+    background: var(--chip);
+    color: var(--muted);
+}
+
+.kind-tag {
+    font-size: var(--text-sm);
+    color: var(--muted);
+}
+
+
+/* ============================================================
+   Banners and alerts
+   ============================================================ */
+
+.error-banner,
+.success-banner {
+    border-radius: var(--radius-md);
+    padding: var(--space-3) var(--space-4);
+    margin-bottom: var(--space-4);
+    font-size: var(--text-base);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.error-banner {
+    background: var(--red-soft);
+    border: 1px solid var(--red-edge);
+    color: var(--red);
+}
+
+.success-banner {
+    background: var(--green-soft);
+    border: 1px solid var(--green-edge);
+    color: var(--green);
+}
+
+.banner-dismiss {
+    background: transparent;
+    border: none;
+    color: inherit;
+    font-size: var(--text-xl);
+    line-height: 1;
+    padding: 0 var(--space-1);
+    min-height: 0;
+    cursor: pointer;
+    opacity: 0.7;
+    flex-shrink: 0;
+}
+
+.banner-dismiss:hover {
+    opacity: 1;
+    background: transparent;
+    border-color: transparent;
+}
+
+.alert-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.alert-item:last-child {
+    border-bottom: none;
+}
+
+.alert-item .msg {
+    flex: 1;
+    font-size: var(--text-base);
+}
+
+.alert-item .meta {
+    color: var(--muted);
+    font-size: var(--text-sm);
+    letter-spacing: var(--tracking-caption);
+    margin-top: var(--space-1);
+}
+
+.alert-item.seen .msg {
+    color: var(--muted);
+}
+
+
+/* Severity is a text tag now (.urgency and the .sev-* helpers), not a dot:
+   taste-SKILL 9.F allows state colour but bans decorative status dots. */
+
+.empty {
+    color: var(--muted);
+    font-size: var(--text-base);
+    /* A recessed slot rather than a stray sentence: an empty state stands in for the content that
+     will fill this exact box, so it takes the box's shape and the inset surface token. */
+    margin: 0;
+    padding: var(--space-4);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    background: var(--panel-2);
+}
+
+
+/* ============================================================
+   Table cells and links. R1: links are an allowed accent.
+   ============================================================ */
+
+.linklike {
+    display: block;
+    background: none;
+    border: none;
+    padding: 0;
+    min-height: 0;
+    color: var(--text);
+    font-size: var(--text-base);
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+    white-space: normal;
+    line-height: 1.35;
+    margin-bottom: var(--space-1);
+}
+
+.linklike:hover {
+    color: var(--accent);
+    background: none;
+    border: none;
+}
+
+.url-link {
+    color: var(--accent);
+    font-size: var(--text-caption);
+    letter-spacing: var(--tracking-caption);
+    text-decoration: none;
+    max-width: 220px;
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: bottom;
+}
+
+.url-link:hover {
+    text-decoration: underline;
+}
+
+.btn-link {
+    color: var(--accent);
+    font-size: var(--text-caption);
+    font-weight: 400;
+    text-decoration: none;
+}
+
+.btn-link:hover {
+    text-decoration: underline;
+}
+
+
+/* Whole row opens the business detail modal. */
+
+.clickable-row {
+    cursor: pointer;
+}
+
+.clickable-row:hover {
+    background: var(--accent-softer);
+}
+
+.clickable-row:hover .linklike {
+    color: var(--accent);
+}
+
+.actions {
+    display: flex;
+    gap: var(--space-2);
+    justify-content: flex-end;
+}
+
+
+/* Name cell: business name on top, Maps URL underneath. */
+
+.name-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
+    min-width: 0;
+    max-width: 260px;
+}
+
+.name-cell .url-link {
+    max-width: 100%;
+}
+
+.rating-cell {
+    white-space: nowrap;
+}
+
+.rating-cell .muted {
+    display: block;
+    margin-top: var(--space-1);
+    font-size: var(--text-sm);
+}
+
+.date-cell {
+    white-space: nowrap;
+    font-size: var(--text-caption);
+    letter-spacing: var(--tracking-tabular);
+}
+
+
+/* ============================================================
+   Filter chips
+   ============================================================ */
+
+.review-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-1);
+    padding-bottom: var(--space-1);
+}
+
+.filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: var(--radius-pill);
+    padding: var(--space-1) var(--space-3);
+    font-size: var(--text-base);
+    /* measured button-sm */
+    font-weight: 400;
+    cursor: pointer;
+    min-height: 32px;
+}
+
+.filter-chip:hover {
+    color: var(--text);
+    border-color: var(--border-strong);
+    background: var(--panel-hover);
+}
+
+.filter-chip.active {
+    color: var(--text);
+    background: var(--panel);
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-card);
+}
+
+.filter-count {
+    color: var(--muted);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    background: var(--chip);
+    border-radius: var(--radius-pill);
+    padding: 1px var(--space-2);
+    /* 1px keeps the count on the chip baseline */
+}
+
+
+/* Rating chips keep the star small so the number stays the focus. */
+
+.filter-chip .icon {
+    width: 0.85em;
+    height: 0.85em;
+}
+
+
+/* ============================================================
+   Modal
+   ============================================================ */
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: var(--backdrop);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-5);
+}
+
+.modal {
+    width: min(520px, 100%);
+    max-height: min(86vh, 720px);
+    overflow: auto;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-pop);
+    /* R5 level 2 is reserved for this layer */
+}
+
+.modal-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-5) var(--space-5) var(--space-3);
+    border-bottom: 1px solid var(--border);
+}
+
+.modal-head h3 {
+    font-size: var(--text-xl);
+    line-height: 1.3;
+}
+
+.modal-sub {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+}
+
+.modal-body {
+    padding: var(--space-3) var(--space-5);
+}
+
+.modal-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-5) var(--space-5);
+    border-top: 1px solid var(--border);
+}
+
+
+/* Kwerry confirm dialog: narrow card, actions pinned right. */
+
+.modal-sm {
+    width: min(360px, 100%);
+}
+
+.modal-sm .modal-foot {
+    justify-content: flex-end;
+}
+
+/* Sign-out confirm: a small card anchored above the profile trigger instead of a
+   screen-centred modal. Portalled + fixed for the same reason as .user-popover
+   (the sidebar's overflow clip), and translateY(-100%) puts its bottom edge on
+   the trigger's top edge. It has no backdrop, so it sits above the profile row
+   rather than at the 100 modal layer. */
+.signout-popover {
+    position: fixed;
+    transform: translateY(-100%);
+    z-index: 45;
+}
+
+/* The card is pinned to the trigger's width (set inline from its rect) so it
+   sits squarely on the profile row instead of sprawling over the page beside the
+   rail. At that width Cancel + Sign out no longer fit on one line, so they stack
+   and go full-bleed. */
+.signout-popover .modal-foot {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.signout-popover .modal-foot button {
+    width: 100%;
+}
+
+
+/* Edit dialog: labelled fields stacked, each with a short hint under it. */
+
+.form-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.form-stack .field {
+    min-width: 0;
+}
+
+.field-hint {
+    font-size: var(--text-sm);
+    letter-spacing: var(--tracking-caption);
+    color: var(--faint);
+}
+
+.detail-row {
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr);
+    gap: var(--space-3);
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    color: var(--muted);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding-top: var(--space-1);
+}
+
+.detail-value {
+    font-size: var(--text-base);
+    line-height: 1.5;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.detail-value a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.detail-value a:hover {
+    text-decoration: underline;
+}
+
+.hours-block {
+    margin: 0;
+    font-family: inherit;
+    font-size: var(--text-caption);
+    line-height: 1.55;
+    white-space: pre-wrap;
+    color: var(--text);
+}
+
+@media (max-width: 560px) {
+    .detail-row {
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--space-1);
+    }
+}
+
+
+/* ============================================================
+   Reviews
+   ============================================================ */
+
+.reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    max-height: 520px;
+    overflow-y: auto;
+}
+
+.review-card {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+}
+
+.review-head {
+    display: flex;
+    gap: var(--space-3);
+    align-items: baseline;
+    flex-wrap: wrap;
+}
+
+.review-author {
+    font-weight: 600;
+    font-size: var(--text-base);
+}
+
+.review-stars {
+    display: inline-flex;
+    align-items: center;
+    gap: 1px;
+    /* optical: one hairline between star glyphs */
+    align-self: center;
+    /* the star row reads better centred on the label line */
+    color: var(--amber);
+    /* R2: the rating is the state here, so the hue earns its place */
+    font-size: var(--text-base);
+}
+
+.review-text {
+    margin: var(--space-2) 0 0;
+    font-size: var(--text-base);
+    line-height: 1.55;
+    color: var(--text);
+    white-space: pre-wrap;
+}
+
+
+/* ============================================================
+   Focus, scrollbars, theme switch, motion
+   ============================================================ */
+
+:focus-visible {
+    outline: 2px solid var(--accent);
+    /* R1: focus is the third allowed accent */
+    outline-offset: 2px;
+}
+
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar) transparent;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--scrollbar);
+    border-radius: var(--radius-pill);
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    /* Opt out of the shared 44px button floor, which would otherwise win over
+       the height above and leave this control taller than the row it sits in. */
+    min-height: 0;
+    padding: 0;
+    gap: 0;
+    background: transparent;
+    /* Borderless: the glyph is the whole affordance, so a frame would read as a
+       second control rather than part of this one. */
+    border: 0;
+    color: var(--muted);
+    font-size: var(--text-md);
+    line-height: 1;
+}
+
+/* Hover is a pure ink step on the glyph. :not(:disabled) is load-bearing: the
+   shared `button:hover:not(:disabled)` rule scores 0-2-1 and would otherwise
+   beat this 0-2-0 selector, filling the button with --btn-bg instead. */
+
+.theme-toggle:hover:not(:disabled) {
+    color: var(--text);
+    background: transparent;
+    opacity: 1;
+}
+
+
+/* Only the theme swap itself animates; everything else stays snappy. */
+
+html[data-theme] body,
+html[data-theme] .panel,
+html[data-theme] .stat-card,
+html[data-theme] .topbar,
+html[data-theme] .sidebar,
+html[data-theme] .review-card,
+html[data-theme] .modal {
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+    * {
+        transition: none !important;
+        animation: none !important;
+    }
+    html[data-theme] body,
+    html[data-theme] .panel,
+    html[data-theme] .stat-card,
+    html[data-theme] .topbar,
+    html[data-theme] .sidebar,
+    html[data-theme] .review-card,
+    html[data-theme] .modal {
+        transition: none;
+    }
+}
+
+
+/* ============================================================
+   Analyze: data bars and signed deltas
+   ============================================================ */
+
+
+/* Bars stay neutral: the two series are told apart by value contrast (own =
+   ink, competitors = muted) instead of a second accent, which keeps rule R1
+   untouched. A delta is a state, so it may borrow success/danger (rule R2). */
+
+.bar-row {
+    display: grid;
+    grid-template-columns: 76px minmax(0, 1fr) 104px;
+    gap: var(--space-3);
+    align-items: center;
+    padding: var(--space-1) 0;
+}
+
+.bar-label {
+    color: var(--muted);
+    font-size: var(--text-caption);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.bar-track {
+    background: var(--chip);
+    border-radius: var(--radius-pill);
+    height: 8px;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    min-width: 2px;
+    /* a non-zero value never renders as an empty track */
+    border-radius: var(--radius-pill);
+    background: var(--muted);
+}
+
+.bar-fill.strong {
+    background: var(--text);
+}
+
+.bar-value {
+    text-align: right;
+    font-size: var(--text-caption);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: var(--tracking-tabular);
+    white-space: nowrap;
+}
+
+.delta {
+    font-weight: 700;
+}
+
+.delta.good {
+    color: var(--green);
+}
+
+.delta.bad {
+    color: var(--red);
+}
+
+.delta.flat {
+    color: var(--muted);
+}
+
+
+/* Urgency as a text tag (taste-SKILL 9.F bans decorative status dots; the
+   state survives as colour on the status word itself). */
+
+.urgency {
+    display: inline-block;
+    margin-left: var(--space-2);
+    padding: 1px var(--space-2);
+    /* 1px keeps the tag on the meta baseline */
+    border-radius: var(--radius-pill);
+    background: var(--red-soft);
+    color: var(--red);
+    font-size: var(--text-xxs);
+    font-weight: 400;
+    letter-spacing: 0.1px;
+    text-transform: uppercase;
+}
+
+.sev-warn {
+    color: var(--amber);
+    font-weight: 600;
+}
+
+.sev-danger {
+    color: var(--red);
+    font-weight: 600;
+}
+
+
+/* ============================================================
+   Settings — password reset + database backup (Kwerry layout:
+   .settings-head, .settings-grid, .input-wrap, .backup-actions)
+   ============================================================ */
+
+.settings-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-4);
+    /* Cards sharing a row take one height, so the right-hand pair lines up. */
+    align-items: stretch;
+}
+
+
+/* Security is the tallest card (a three-field form), so it anchors the left
+   track and spans both rows. The other two are auto-placed in the right track
+   and stack into rows 1 and 2. */
+
+.settings-panel--lead {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+}
+
+
+/* Flex column so each card can pin its action row to the bottom; the cards are
+   stretched to a shared height, so a top-aligned button would float. */
+
+.settings-panel {
+    display: flex;
+    flex-direction: column;
+}
+
+.settings-panel .form-stack {
+    flex: 1;
+}
+
+
+/* The base .field is `flex: 1` so fields share one horizontal row (see
+   .row in AddBusiness). Inside a vertical form-stack that same rule made the
+   three password fields grow and split the slack between themselves, which is
+   very visible now that Security spans both rows. Pin them to their content
+   height and let the form's own gap do the spacing. */
+
+.settings-panel .form-stack .field {
+    flex: 0 0 auto;
+}
+
+.settings-panel .form-actions,
+.settings-panel .backup-actions {
+    margin-top: auto;
+}
+
+
+/* Inline-styled banner offset: the password banner sits below its form, not
+   directly against the Save button. */
+
+.banner-stack {
+    margin-top: var(--space-4);
+}
+
+
+/* Inside the grid each panel is its own column, so the shared stacked
+   margin from .panel would double the gap. */
+
+.settings-grid .panel {
+    margin-bottom: 0;
+}
+
+
+/* Kwerry .settings-head: eyebrow, 20px title, muted description. */
+
+.settings-head {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
+    margin-bottom: var(--space-4);
+}
+
+.settings-head h2 {
+    margin: 0;
+    font-size: 20px;
+    line-height: 1.25;
+    letter-spacing: -0.2px;
+}
+
+.settings-desc {
+    margin: 0;
+    max-width: 62ch;
+}
+
+
+/* Panel eyebrow stays a touch smaller than the topbar's. */
+
+.settings-panel .eyebrow {
+    font-size: var(--text-xs);
+}
+
+.settings-note {
+    margin: var(--space-3) 0 0;
+}
+
+
+/* Form action rows (e.g. Save password) pin right inside the settings panel. */
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+
+/* Show/Hide button parks inside the input's right edge. */
+
+.input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-wrap input {
+    width: 100%;
+    padding-right: 72px;
+    /* room for the toggle, never over the value */
+}
+
+.input-toggle {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radius-xs);
+    color: var(--muted);
+    min-height: 0;
+    padding: 5px 8px;
+    font-size: var(--text-xs);
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+.input-toggle:hover {
+    color: var(--text);
+    border-color: var(--border);
+    background: var(--panel-2);
+    opacity: 1;
+}
+
+
+/* Primary + secondary side by side at one control height (Kwerry). */
+
+.backup-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    align-items: stretch;
+}
+
+
+/* The restore control is a <label> wrapping a hidden file input, so it has to
+   opt back into the button geometry the element selector gives real buttons. */
+
+label.file-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 0;
+    cursor: pointer;
+    min-height: 44px;
+    padding: 13px 32px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--text);
+    font: 600 12px/1.5 var(--font-sans);
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    /* A control, not a field caption: matches the real <button> beside it. */
+    text-transform: none;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+label.file-btn:hover {
+    background: var(--text);
+    border-color: var(--text);
+    color: var(--on-btn);
+}
+
+@media (max-width: 1024px) {
+    .settings-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    /* Back to a plain stack in DOM order. Without this reset the lead card
+       would still span two rows of a one-column grid and leave a hole. */
+    .settings-panel--lead {
+        grid-column: 1;
+        grid-row: auto;
+    }
+}
+
+@media (max-width: 700px) {
+    .backup-actions>*,
+    label.file-btn {
+        width: 100%;
+    }
+}

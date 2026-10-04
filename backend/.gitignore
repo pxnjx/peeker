@@ -1,0 +1,19 @@
+# The session-signing secret. This is the HMAC key that signs every dashboard
+# session cookie, in both backend/app/auth.py and frontend/lib/session.ts. A
+# committed copy lets anyone mint a valid admin session. Use .env.example.
+.env
+
+# Python virtualenv: ~247 MB across ~6,800 files.
+.venv/
+__pycache__/
+*.py[cod]
+
+# Live databases: peeker.db / mapsy.db plus their WAL sidecars.
+data/
+*.db
+*.db-wal
+*.db-shm
+
+# Runtime logs.
+*.log
+logs/

@@ -1,0 +1,42 @@
+[project]
+name = "peeker-backend"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "pydantic>=2.8",
+    "pydantic-settings>=2.4",
+    "SQLAlchemy[asyncio]>=2.0.30",
+    "aiosqlite>=0.20",
+    "APScheduler>=3.10,<4",
+    "python-multipart>=0.0.9",
+    "httpx>=0.27",
+    "playwright>=1.47",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-asyncio>=0.23", "respx>=0.21", "mypy>=1.10", "ruff>=0.5"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+markers = [
+    "network: tests that hit live Google Maps (deselect with '-m \"not network\"')",
+]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+# FastAPI's canonical dependency-injection style.
+"app/api.py" = ["B008"]
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+warn_unused_ignores = false

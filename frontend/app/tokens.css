@@ -1,0 +1,204 @@
+/* ============================================================
+   Peeker design tokens, themed from .claude/substack-DESIGN.md.
+
+   Substack read: content-first, electric blue on near-black ink,
+   system-ui type, 8px spacing rhythm, lightly rounded controls, calm motion.
+   Light is the default; [data-theme="dark"] mirrors it 1:1 so the
+   product stays usable after dark (taste-SKILL 6.C / 8).
+
+   Rules that catch a regression:
+
+   R1 Accent economy. Electric blue paints only the primary pill,
+        the active nav item, links, and focus rings.
+        Check: nothing outside those four uses --accent or --accent-soft.
+   R2 Status hues report a state or they do not exist. Green, amber,
+        orange and red appear only in badges, banners and the stat
+        cards that count those states.
+   R3 Control geometry. Buttons, chips and form fields are 8px rounded
+        (Substack CTAs are ink-filled and only lightly rounded, not soap
+        pills). Electric blue never fills a button.
+        Check: no border-radius on button, input or select outside 8px,
+        and no filled button uses --accent.
+   R4 Radius scale 0 / 4 / 8 / 12 / 16 / 50 only.
+   R5 Two elevation levels. Substack is flat; panels are flat or lift
+        one step with a hairline, floating layers use --shadow-pop.
+        Check: no box-shadow outside --shadow-card and --shadow-pop.
+   R6 Spacing steps 8 / 16 / 32 on an 8px base, with 4 and 12 kept
+        as optical nudges and 64 / 96 / 128 / 160 for section rhythm.
+   R7 Type ramp from the Substack display/heading/body sizes, with
+        the dense-dashboard tail (10-18) kept for tables and chrome.
+        Body is 12px / 1.5, display 40px / 1.25 / 600.
+   R8 Dark mode is near-black with the same electric blue lifted for
+        AA. npm run theme:audit fails if a ramp step collapses or a
+        text pair drops under 4.5:1.
+   R10 Icons come from Phosphor; type is the system stack (Substack
+        loads no webfont). Check: no Google Fonts link in the tree.
+   ============================================================ */
+:root {
+  /* Substack: system stack, no webfont. Mono matches body size. */
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-mono: ui-monospace, "SFMono-Regular", "Cascadia Mono", Consolas, monospace;
+
+  /* R6: Substack 8px base. 4 and 12 stay as optical nudges. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 64px;
+  --space-8: 96px;
+
+  /* R7: Substack 24 / 12 anchor, dense tail for the dashboard. The 40px display step
+     was tokenised but never consumed, so it is gone; the marketing hero sizes its own
+     type with a clamp() in app/marketing.css. */
+  --text-xxs: 10px;
+  --text-xs: 11px;
+  --text-sm: 12px; /* Substack body */
+  --text-caption: 12px;
+  --text-base: 13px;
+  --text-md: 14px;
+  --text-lg: 16px;
+  --text-xl: 18px;
+  --text-2xl: 24px; /* Substack heading */
+  --leading: 1.5; /* Substack body line-height */
+  --tracking-display: -0.5px;
+  --tracking-tabular: -0.42px;
+  --tracking-caption: -0.2px;
+
+  /* R3/R4: Kwerry control geometry. 6px on fields and buttons, not pills. */
+  --radius-xs: 4px;
+  --radius-sm: 6px; /* form fields, cards */
+  --radius-md: 6px;
+  --radius-xl: 16px;
+  --radius-pill: 6px; /* buttons and chips: same control family */
+
+  /* Surfaces. Substack is white paper; insets step down one warm-neutral. */
+  --bg: #ffffff;
+  --panel: #ffffff;
+  --panel-2: #f4f4f4;
+  --panel-hover: #ececec;
+  --border: #d4d4d4; /* hairline: Substack border ink, diluted for tables */
+  --border-soft: rgba(49, 49, 49, 0.12);
+  --border-strong: #313131; /* Substack border token, full strength */
+  --border-input: #a9a9a9; /* Kwerry line-strong: field edge must read as interactive */
+
+  /* Text. Substack ink #313131; muted/faint are true greys (the brief
+     itself flags that blue-as-muted would flatten hierarchy). */
+  --text: #313131;
+  --muted: #5c5c5c;
+  --faint: #6e6e6e;
+
+  /* R1: electric blue is the link / focus accent only. Primary CTAs
+     are ink-filled (Substack's Subscribe is near-black, not blue). */
+  --accent: #0000ee;
+  --accent-hover: #0000cc;
+  --accent-press: #0000aa;
+  --accent-soft: rgba(0, 0, 238, 0.08);
+  --accent-softer: rgba(0, 0, 238, 0.04);
+  --ring: rgba(0, 0, 238, 0.4);
+  --on-accent: #ffffff;
+  --btn-bg: #313131;
+  --btn-bg-hover: #1a1a1a;
+  --btn-bg-press: #000000;
+  --on-btn: #ffffff;
+  /* Label on a filled warning surface (the sign-out confirm's hover). */
+  --on-amber: #ffffff;
+  --tag-own-bg: rgba(0, 0, 238, 0.1);
+  --tag-own-text: #0000cc;
+
+  /* R2: status hues. Functional only, never decoration. */
+  --green: #0a6b3d;
+  --amber: #8a5a00;
+  --orange: #a04500;
+  --red: #c01030;
+  --status-neutral: #5c5c5c;
+  --green-soft: rgba(16, 138, 78, 0.12);
+  --amber-soft: rgba(196, 130, 0, 0.14);
+  --orange-soft: rgba(212, 100, 20, 0.13);
+  --red-soft: rgba(208, 16, 75, 0.1);
+  --chip: rgba(49, 49, 49, 0.06);
+  --red-edge: rgba(208, 16, 75, 0.28);
+  --green-edge: rgba(16, 138, 78, 0.28);
+
+  /* Chrome. */
+  --surface-glass: rgba(255, 255, 255, 0.88);
+  --backdrop: rgba(49, 49, 49, 0.4);
+  --scrollbar: #c4c4c4;
+  --brand-dark: #313131; /* closing CTA band = Substack ink */
+  --cream: #f4f4f4; /* interlude band = Substack inset */
+
+  /* R5: Substack is flat. Card is a hairline lift; pop is for overlays. */
+  --shadow-card: 0 1px 2px rgba(49, 49, 49, 0.06);
+  --shadow-pop: 0 8px 24px rgba(49, 49, 49, 0.12), 0 2px 6px rgba(49, 49, 49, 0.06);
+
+  /* Substack motion is uniform and calm. Interactive chrome stays
+     snappy (taste-SKILL 4.5). */
+  --duration-base: 250ms;
+
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  /* Near-black paper, same electric blue lifted until it clears AA.
+     No pure #000 / #fff (taste-SKILL 8.B). */
+  --bg: #121212;
+  --panel: #1c1c1c;
+  --panel-2: #262626;
+  --panel-hover: #2e2e2e;
+  --border: #3a3a3a;
+  --border-soft: rgba(255, 255, 255, 0.1);
+  --border-strong: #7a7a7a;
+  --border-input: #8a8a8a;
+
+  --text: #f0f0f0;
+  --muted: #b0b0b0;
+  --faint: #9a9a9a;
+
+  --accent: #7a7aff; /* electric blue lifted for dark AA */
+  --accent-hover: #9a9aff;
+  --accent-press: #6a6af0; /* lifted until on-accent clears 4.5:1 */
+  --accent-soft: rgba(122, 122, 255, 0.16);
+  --accent-softer: rgba(122, 122, 255, 0.08);
+  --ring: rgba(122, 122, 255, 0.5);
+  --on-accent: #0a0a12;
+  --btn-bg: #f0f0f0;
+  --btn-bg-hover: #ffffff;
+  --btn-bg-press: #d8d8d8;
+  --on-btn: #121212;
+  /* Amber is a light surface in dark mode, so its label inverts to near-black. */
+  --on-amber: #121212;
+  --tag-own-bg: rgba(122, 122, 255, 0.2);
+  --tag-own-text: #b0b0ff;
+
+  --green: #3dce8c;
+  --amber: #e0a020;
+  --orange: #f08040;
+  --red: #ff6b8a;
+  --status-neutral: #9a9a9a;
+  --green-soft: rgba(61, 206, 140, 0.16);
+  --amber-soft: rgba(224, 160, 32, 0.16);
+  --orange-soft: rgba(240, 128, 64, 0.15);
+  --red-soft: rgba(255, 107, 138, 0.12);
+  --chip: rgba(240, 240, 240, 0.08);
+  --red-edge: rgba(255, 107, 138, 0.38);
+  --green-edge: rgba(61, 206, 140, 0.34);
+
+  --cream: #262626;
+  --surface-glass: rgba(18, 18, 18, 0.88);
+  --backdrop: rgba(0, 0, 0, 0.7);
+  --scrollbar: #4a4a4a;
+
+  --shadow-card:
+    0 1px 1px rgba(0, 0, 0, 0.4),
+    0 4px 12px -4px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --shadow-pop:
+    0 2px 4px rgba(0, 0, 0, 0.4),
+    0 16px 40px -12px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+  color-scheme: dark;
+}

@@ -1,0 +1,10 @@
+/*
+ * Peeker styles entry point.
+ * Split by concern so each file stays navigable:
+ *   tokens.css    — design tokens (:root + dark mirror)
+ *   dashboard.css — app shell, tables, forms, panels, modals, analyze
+ *   marketing.css — landing, legal, login
+ */
+@import "./tokens.css";
+@import "./dashboard.css";
+@import "./marketing.css";

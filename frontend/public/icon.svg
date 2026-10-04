@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Peeker">
+  <!-- Substack palette: ink tile (#313131), white map pin, electric-blue pin-dot (#0000ee).
+       Same geometry as components/BrandPin.tsx; raster assets via tools/generate-brand-assets.ps1.
+       The in-app mark drops the tile (favicons still need a solid ground to stay legible on any
+       tab colour), so the pin + dot is the part that has to match. Dot is a touch larger here
+       than in-app: at 16px it would otherwise wash out. -->
+  <rect width="64" height="64" rx="14" fill="#313131" />
+  <path
+    fill="#ffffff"
+    fill-rule="evenodd"
+    d="M32 10c-8.837 0-16 7.163-16 16 0 11.5 12.8 23.8 14.6 25.3a2.1 2.1 0 0 0 2.8 0C35.2 49.8 48 37.5 48 26c0-8.837-7.163-16-16-16zm0 8.5a7.5 7.5 0 1 1 0 15 7.5 7.5 0 0 1 0-15z"
+  />
+  <circle cx="32" cy="26" r="3.8" fill="#0000ee" />
+</svg>

@@ -1,0 +1,9 @@
+node_modules/
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+.env*.local
+
+# Local account store (scrypt hashes) — never commit.
+data/users.json

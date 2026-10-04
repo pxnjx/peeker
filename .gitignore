@@ -1,0 +1,31 @@
+# Throwaway browser checks, screenshots and server logs from local debugging.
+# Kept on disk for reference, but they are not source and should never be tracked.
+logs/
+
+# Local agent notes, design drafts and skill packs. Project-specific, not shipped.
+.claude/
+.agents/
+
+# Secrets. Real values never enter git — only the .example files beside them do.
+.env
+.env.*
+!.env.example
+!.env*.example
+
+# Live SQLite databases. Three copies exist: backend/data/peeker.db,
+# backend/data/mapsy.db, and a stray one at the repo root. Plus WAL sidecars.
+*.db
+*.db-wal
+*.db-shm
+data/
+
+# Python build artefacts. The backend venv is ~247 MB / 6,800 files.
+__pycache__/
+*.py[cod]
+.venv/
+
+# Browser automation dumps, runtime logs and OS noise.
+.playwright-cli/
+*.log
+.DS_Store
+Thumbs.db

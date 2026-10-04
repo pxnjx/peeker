@@ -1,0 +1,159 @@
+<!doctype html>
+<!--
+  Static fixture for eyeballing the theme without the backend running: it links app/globals.css
+  directly and repeats the dashboard's real markup and class names (overview, stats, alerts,
+  quick links, the businesses table, reviews). Open with ?theme=light for the other ramp.
+  Anything used here must be a class that actually exists in globals.css.
+-->
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <title>Peeker theme preview</title>
+    <link rel="stylesheet" href="../app/globals.css" />
+    <script>
+      const theme = new URLSearchParams(location.search).get("theme");
+      if (theme) document.documentElement.dataset.theme = theme;
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="page-head">
+        <h2>Overview</h2>
+        <span class="section-hint">crawler status, totals &amp; open alerts</span>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card"><div class="label">Businesses</div><div class="value">12</div></div>
+        <div class="stat-card"><div class="label">Queued</div><div class="value">3</div></div>
+        <div class="stat-card tone-warn"><div class="label">Scraping</div><div class="value">1</div></div>
+        <div class="stat-card tone-good"><div class="label">Idle</div><div class="value">6</div></div>
+        <div class="stat-card tone-warn"><div class="label">Backoff</div><div class="value">1</div></div>
+        <div class="stat-card tone-danger"><div class="label">Parked</div><div class="value">1</div></div>
+        <div class="stat-card"><div class="label">Reviews</div><div class="value">1,284</div></div>
+        <div class="stat-card tone-danger"><div class="label">Open Alerts</div><div class="value">2</div></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Needs attention</h2>
+            <a class="muted" href="#">Open businesses →</a>
+          </div>
+          <div class="alert-item">
+            <div class="msg">
+              <div>Copperpot Coffee</div>
+              <div class="meta"><span class="sev-warn">backoff</span> · block #3</div>
+            </div>
+          </div>
+          <div class="alert-item">
+            <div class="msg">
+              <div>Northside Dental</div>
+              <div class="meta"><span class="sev-danger">parked</span> until 2 Oct, 09:12</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Alerts (2 open)</h2>
+            <div class="topbar-actions">
+              <span class="muted">5 shown</span>
+              <button class="small ghost">Mark all seen</button>
+            </div>
+          </div>
+          <div class="alert-item">
+            <div class="msg">
+              <div>Rating dropped 4.6 → 4.2 in 24h</div>
+              <div class="meta">Copperpot Coffee (rating_drop) · 26 Sept, 18:04<span class="urgency">urgent</span></div>
+            </div>
+            <button class="small ghost">Mark seen</button>
+          </div>
+          <div class="alert-item seen">
+            <div class="msg">
+              <div>7 new reviews in 24h</div>
+              <div class="meta">Northside Dental (review_burst) · 25 Sept, 07:41</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <a class="stat-card quick-link" href="#">
+          <div class="label">Businesses</div>
+          <div class="value">12</div>
+          <div class="muted">add, edit &amp; rescan listings</div>
+        </a>
+        <a class="stat-card quick-link" href="#">
+          <div class="label">Reviews</div>
+          <div class="value">1,284</div>
+          <div class="muted">stored Google Maps reviews</div>
+        </a>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Businesses</h2>
+          <button class="small ghost">Enqueue all</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Name</th><th>Rating</th><th>Reviews</th><th>Status</th><th>Next run</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Copperpot Coffee <span class="kind-badge own">own</span></td>
+                <td class="rating-cell"><span class="num">4.2</span> <span class="muted">down 0.4</span></td>
+                <td class="num">318</td>
+                <td><span class="badge backoff">backoff</span></td>
+                <td class="date-cell">27 Sept, 10:40</td>
+              </tr>
+              <tr>
+                <td>Halcyon Barber Co. <span class="kind-badge competitor">competitor</span></td>
+                <td class="rating-cell"><span class="num">4.7</span></td>
+                <td class="num">112</td>
+                <td><span class="badge scraping">scraping</span></td>
+                <td class="date-cell">27 Sept, 10:31</td>
+              </tr>
+              <tr>
+                <td>Northside Dental <span class="kind-badge own">own</span></td>
+                <td class="rating-cell"><span class="num">3.9</span></td>
+                <td class="num">544</td>
+                <td><span class="badge parked">parked</span></td>
+                <td class="date-cell">2 Oct, 09:12</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h2>Reviews</h2></div>
+        <div class="error-banner">Scrape failed for Northside Dental: blocked by consent wall.<button class="banner-dismiss">×</button></div>
+        <div class="success-banner">Queued 12 businesses.<button class="banner-dismiss">×</button></div>
+        <div class="reviews-list">
+          <div class="review-card">
+            <div class="review-head">
+              <span class="review-author">Priya N.</span>
+              <span class="review-stars">★★☆☆☆</span>
+              <span class="muted">26 Sept, 18:04</span>
+            </div>
+            <p class="review-text">Third visit this month and the wait was an hour twice. Coffee is still good, the queueing needs to change.</p>
+          </div>
+          <div class="review-card">
+            <div class="review-head">
+              <span class="review-author">Marcus T.</span>
+              <span class="review-stars">★★★★★</span>
+              <span class="muted">25 Sept, 09:12</span>
+            </div>
+            <p class="review-text">Best flat white on the north side, and the staff remembered my order.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h2>Empty states</h2></div>
+        <p class="empty">No alerts yet. Rating drops and review bursts show up here.</p>
+      </div>
+    </div>
+  </body>
+</html>

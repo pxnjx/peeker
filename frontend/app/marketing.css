@@ -1,0 +1,794 @@
+/* ============================================================
+   Public surfaces: landing page and login.
+   The gradient mesh is a soft wash of the Substack palette (ink + electric
+   blue + a warm paper tint). It never sits behind product UI or data.
+   R1 still holds, so each band carries at most one filled accent pill.
+   ============================================================ */
+
+.shell {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--space-5);
+}
+
+.marketing {
+    position: relative;
+    /* No overflow here: any overflow-x (even clip) can make this box the
+     sticky containing block and pin the nav to the wrong scroller. */
+}
+
+
+/* Honest approximation of a mesh: layered radial gradients, not a recipe
+   that pretends to be the artwork. Colours are Substack tokens only. */
+
+.mesh {
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 640px;
+    z-index: 0;
+    pointer-events: none;
+    background: radial-gradient(58% 78% at 6% 18%, rgba(244, 244, 244, 0.95), transparent 62%), radial-gradient(44% 68% at 30% 4%, rgba(49, 49, 49, 0.1), transparent 64%), radial-gradient(50% 74% at 56% 0%, rgba(0, 0, 238, 0.18), transparent 62%), radial-gradient(44% 70% at 78% 10%, rgba(0, 0, 238, 0.1), transparent 64%), radial-gradient(40% 64% at 96% 2%, rgba(244, 244, 244, 0.9), transparent 62%);
+    filter: blur(10px) saturate(110%);
+}
+
+[data-theme="dark"] .mesh {
+    opacity: 0.45;
+    /* marketing-only backdrop, calmed on near-black */
+}
+
+
+/* ---------- Marketing nav ---------- */
+
+.m-nav {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    /* Solid first so sticky reads correctly; glass is progressive enhancement. */
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+}
+
+@supports (backdrop-filter: blur(12px)) {
+    .m-nav {
+        background: var(--surface-glass);
+        backdrop-filter: blur(12px);
+    }
+}
+
+.m-nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    min-height: 64px;
+}
+
+
+/* The switch is anchored to the bar's own right edge instead of the content
+   column. .m-nav is position: sticky, so it is the containing block for the
+   absolutely positioned switch; .m-nav-inner between them is static and does
+   not capture the positioning. Being a descendant rather than a direct child
+   matters: the switch lives inside the .shell wrapper, not directly under .m-nav.
+   Full-width nav => clears the 1200px column on wide screens, while still
+   landing on the same 24px gutter as the column when the column fills the
+   viewport. Mirrors the dashboard's corner-pinned `.main-area > .theme-toggle`. */
+
+.m-nav .theme-toggle {
+    position: absolute;
+    right: var(--space-5);
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+
+/* Brand tile + name + tagline, Kwerry .brand-text. */
+
+.m-wordmark {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text);
+    text-decoration: none;
+    min-width: 0;
+}
+
+
+/* Size only — the plate chrome lives in dashboard.css .brand-mark and the pin
+   now stands alone, so neither surface redraws a frame. */
+
+.m-wordmark .brand-mark {
+    width: 36px;
+    height: 36px;
+    color: var(--text);
+}
+
+.m-wordmark .brand-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.m-wordmark .brand-text strong {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
+    line-height: 1.2;
+}
+
+.m-wordmark .brand-text span {
+    font-size: 11px;
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+
+/* ---------- Bands and hero ---------- */
+
+.band {
+    position: relative;
+    z-index: 1;
+    padding: var(--space-7) 0;
+}
+
+.band-lg {
+    padding: var(--space-8) 0;
+}
+
+.hero-band {
+    position: relative;
+    z-index: 1;
+    padding: var(--space-6) 0 var(--space-7);
+    /* under the measured hero padding cap */
+}
+
+.hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr);
+    gap: var(--space-6);
+    align-items: center;
+}
+
+.eyebrow {
+    margin: 0;
+    font-size: var(--text-xxs);
+    /* measured micro-cap */
+    font-weight: 400;
+    letter-spacing: 0.1px;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.hero-title {
+    margin: var(--space-3) 0 0;
+    font-size: clamp(32px, 4.6vw, 48px);
+    /* measured display-xl at the top of the clamp */
+    font-weight: 600;
+    line-height: 1.08;
+    letter-spacing: -0.96px;
+}
+
+.hero-sub {
+    margin: var(--space-4) 0 0;
+    font-size: var(--text-lg);
+    line-height: 1.5;
+    color: var(--muted);
+    max-width: 46ch;
+}
+
+.cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+    margin-top: var(--space-5);
+}
+
+
+/* Link CTAs. Same geometry as the dashboard's buttons (R3). The filled
+   CTA is Substack ink; electric blue is reserved for text links. */
+
+
+/* Kwerry .btn-run / .btn-ghost on the landing. */
+
+.m-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 13px 32px;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: var(--btn-bg);
+    color: var(--on-btn);
+    font: 600 12px/1.5 var(--font-sans);
+    letter-spacing: 0.3px;
+    text-decoration: none;
+    transition: opacity 0.15s ease, background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.m-cta:hover {
+    opacity: 0.8;
+    background: var(--btn-bg);
+    color: var(--on-btn);
+}
+
+.m-cta:active {
+    opacity: 0.6;
+}
+
+.m-cta.secondary {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+.m-cta.secondary:hover {
+    background: var(--text);
+    color: var(--on-btn);
+    border-color: var(--text);
+    opacity: 1;
+}
+
+
+/* Real component preview: the product's own classes with sample data, not a
+   hand-drawn fake screenshot. The caption on the page says it is sample data. */
+
+.preview {
+    position: relative;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-pop);
+    padding: var(--space-4);
+}
+
+.preview-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: var(--space-4);
+}
+
+.preview-label {
+    font-size: var(--text-sm);
+    letter-spacing: var(--tracking-caption);
+    color: var(--muted);
+}
+
+.preview-caption {
+    margin: var(--space-3) 0 0;
+    font-size: var(--text-sm);
+    letter-spacing: var(--tracking-caption);
+    color: var(--faint);
+}
+
+.stats-grid.two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-bottom: var(--space-4);
+}
+
+@media (max-width: 960px) {
+    .hero-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .mesh {
+        height: 520px;
+    }
+}
+
+
+/* ---------- Watch grid: hairlines instead of a row of card boxes ---------- */
+
+.watch-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    /* the 1px gap paints the hairlines through the grid background */
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+
+.watch-cell {
+    background: var(--panel);
+    padding: var(--space-5);
+}
+
+
+/* ---------- Section headings for the landing ---------- */
+
+.section-heading {
+    margin: 0;
+    font-size: clamp(24px, 3vw, 32px);
+    /* measured display-lg */
+    font-weight: 600;
+    letter-spacing: -0.64px;
+}
+
+.section-lead {
+    margin: var(--space-3) 0 0;
+    max-width: 90ch;
+    margin-bottom: 10px;
+    font-size: var(--text-md);
+    line-height: 1.6;
+    color: var(--muted);
+}
+
+.section-heading+.watch-grid,
+.section-lead+.watch-grid {
+    margin-top: var(--space-5);
+}
+
+.watch-cell h3 {
+    margin: var(--space-2) 0 0;
+    font-size: var(--text-xl);
+    font-weight: 400;
+    letter-spacing: var(--tracking-display);
+}
+
+.watch-cell p {
+    margin: var(--space-2) 0 0;
+    font-size: var(--text-base);
+    line-height: 1.6;
+    color: var(--muted);
+}
+
+
+/* ---------- Feature rows (max two consecutive, then the layout changes) ---------- */
+
+.feature {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-6);
+    align-items: center;
+}
+
+.feature.flip .feature-text {
+    order: 2;
+}
+
+.feature-text h2 {
+    margin: 0;
+    font-size: var(--text-2xl);
+    font-weight: 400;
+    letter-spacing: var(--tracking-display);
+}
+
+.feature-text p {
+    margin: var(--space-3) 0 0;
+    font-size: var(--text-md);
+    line-height: 1.6;
+    color: var(--muted);
+    max-width: 52ch;
+}
+
+.feature-list {
+    display: grid;
+    gap: var(--space-2);
+    margin: var(--space-4) 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.feature-list li {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    font-size: var(--text-base);
+}
+
+.feature-list .icon {
+    color: var(--green);
+    /* the tick reports "this is monitored", a state */
+}
+
+.feature-visual {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-card);
+    padding: var(--space-5);
+}
+
+
+/* The dashboard tables have a 720px floor for horizontal scroll; in a landing
+   column the table fits the column instead. */
+
+.feature-visual .table-wrap table {
+    min-width: 0;
+}
+
+.feature-visual .table-wrap {
+    margin-top: 0;
+}
+
+@media (max-width: 900px) {
+    .feature {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .feature.flip .feature-text,
+    .feature.flip .feature-visual {
+        order: 0;
+    }
+    .watch-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+
+/* ---------- Cream band: how it works (verb-noun labels, no step numbers) ---------- */
+
+.band-cream {
+    background: var(--cream);
+    border-top: 1px solid var(--border-soft);
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.steps {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: var(--space-6);
+    align-items: start;
+}
+
+.steps h2 {
+    margin: 0;
+    font-size: var(--text-2xl);
+    font-weight: 400;
+    letter-spacing: var(--tracking-display);
+}
+
+.steps p {
+    margin: var(--space-3) 0 0;
+    font-size: var(--text-md);
+    line-height: 1.6;
+    color: var(--muted);
+    max-width: 48ch;
+}
+
+.step-list {
+    display: grid;
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.step-list li {
+    border-top: 1px solid var(--border);
+    padding-top: var(--space-3);
+}
+
+.step-verb {
+    display: block;
+    font-weight: 600;
+    font-size: var(--text-md);
+}
+
+.step-body {
+    margin: var(--space-1) 0 0;
+    font-size: var(--text-base);
+    color: var(--muted);
+}
+
+@media (max-width: 900px) {
+    .steps {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+
+/* ---------- Closing band and footer ---------- */
+
+.band-ink {
+    background: var(--brand-dark);
+    color: #ffffff;
+}
+
+.band-ink h2 {
+    margin: 0;
+    font-size: clamp(24px, 3vw, 32px);
+    font-weight: 600;
+    letter-spacing: -0.64px;
+}
+
+.band-ink p {
+    margin: var(--space-3) 0 0;
+    max-width: 52ch;
+    color: rgba(255, 255, 255, 0.78);
+}
+
+
+/* Inverted CTA on the ink band: the default ink button would vanish here. */
+
+.band-ink .m-cta {
+    background: #ffffff;
+    color: var(--brand-dark);
+    border: 0;
+}
+
+.band-ink .m-cta:hover {
+    opacity: 0.88;
+    background: #ffffff;
+    color: var(--brand-dark);
+}
+
+.band-ink .m-cta:active {
+    opacity: 0.72;
+}
+
+.site-footer {
+    border-top: 1px solid var(--border);
+    padding: var(--space-6) 0 var(--space-7);
+    font-size: var(--text-caption);
+    letter-spacing: var(--tracking-caption);
+    color: var(--muted);
+}
+
+
+/* Kwerry-style studio credit: one centered line, no grid of links.
+
+   .site-footer is full-bleed and carries no horizontal padding, so the credit
+   used to sit hard against the right edge of the window (justify-content: right),
+   outside the 1200px content column every other element lives in. The .shell
+   wrapper inside the component puts it back on the grid; this rule only centres
+   the text within that column. */
+
+.landing-foot-inner {
+    display: flex;
+    justify-content: right;
+    text-align: center;
+}
+
+.landing-foot .footer-link {
+    color: var(--muted);
+    text-decoration: none;
+}
+
+.landing-foot .footer-link:hover {
+    color: var(--text);
+}
+
+.landing-foot strong {
+    font-weight: 600;
+    color: var(--text);
+}
+
+
+/* ---------- Landing motion: CSS only, no JavaScript on the public page ---------- */
+
+
+/* MOTION_INTENSITY 6 for the landing, shipped as transform/opacity keyframes.
+   The entrance runs everywhere; the scroll reveal runs only where
+   scroll-driven animations exist, so unsupported browsers simply see the
+   content already in place (taste-SKILL 5.D, 6.A, 6.B). */
+
+.rise {
+    animation: rise-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.rise-1 {
+    animation-delay: 0.05s;
+}
+
+.rise-2 {
+    animation-delay: 0.12s;
+}
+
+.rise-3 {
+    animation-delay: 0.2s;
+}
+
+.rise-4 {
+    animation-delay: 0.28s;
+}
+
+@keyframes rise-in {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+        .reveal {
+            animation: rise-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+            animation-timeline: view();
+            animation-range: entry 8% cover 34%;
+        }
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rise,
+    .reveal {
+        animation: none;
+    }
+}
+
+
+/* ---------- Auth (Kwerry-shaped login card) ---------- */
+
+.auth-page {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    padding: var(--space-6) var(--space-4);
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 400px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-6);
+}
+
+.auth-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: var(--space-5);
+}
+
+
+/* Size only — see .m-wordmark .brand-mark. */
+
+.auth-brand .brand-mark {
+    width: 36px;
+    height: 36px;
+    color: var(--text);
+}
+
+
+/* Login wordmark: its own column layout, tagline follows the page layout. */
+
+.auth-brand .brand-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.auth-brand .brand-text strong {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
+    line-height: 1.2;
+}
+
+
+/* Login wordmark: tagline follows the page layout, not the sidebar rail. */
+
+.auth-brand .brand-text span {
+    font-size: 11px;
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+
+/* First-run notice: the seeded admin password, shown once so a fresh install with no
+   SEED_ADMIN_PASSWORD can still be signed into. pre keeps the credential's own line
+   break from the template string. */
+
+.auth-notice-box {
+    margin-top: var(--space-3);
+    padding: var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--panel-2);
+    font-size: var(--text-sm);
+}
+
+.auth-notice {
+    margin: 0 0 var(--space-2);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--text);
+}
+
+.auth-notice-dismiss {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    color: var(--text);
+    min-height: 32px;
+    padding: 4px 14px;
+    font: 600 12px/1.5 var(--font-sans);
+}
+
+.auth-notice-dismiss:hover:not(:disabled) {
+    background: var(--text);
+    border-color: var(--text);
+    color: var(--on-btn);
+    opacity: 1;
+}
+
+.auth-form h1 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0 0 4px;
+    letter-spacing: var(--tracking-display);
+}
+
+.auth-sub {
+    color: var(--muted);
+    margin: 0 0 var(--space-4);
+    font-size: 12px;
+}
+
+.auth-form label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: var(--space-2) 0 var(--space-1);
+}
+
+.auth-form input {
+    /* Kwerry-sized field: full width so username and password match. */
+    width: 100%;
+    min-height: 44px;
+    padding: 12px 20px;
+    font-size: var(--text-base);
+    margin-bottom: var(--space-2);
+}
+
+.auth-form button[type="submit"] {
+    width: 100%;
+    margin-top: var(--space-3);
+    /* Kwerry filled CTA: ink, 44px, 12px/600, opacity hover. */
+    min-height: 44px;
+    padding: 13px 32px;
+    border: 0;
+    background: var(--btn-bg);
+    color: var(--on-btn);
+    font: 600 12px/1.5 var(--font-sans);
+    letter-spacing: 0.3px;
+}
+
+.auth-form button[type="submit"]:hover:not(:disabled) {
+    opacity: 0.8;
+    background: var(--btn-bg);
+    color: var(--on-btn);
+}
+
+.auth-form button[type="submit"]:active:not(:disabled) {
+    opacity: 0.6;
+}
+
+.auth-error {
+    margin-top: var(--space-3);
+}
+
+.auth-back {
+    display: inline-block;
+    margin-top: var(--space-4);
+    color: var(--muted);
+    font-size: 12px;
+    text-decoration: none;
+}
+
+.auth-back:hover {
+    color: var(--text);
+    text-decoration: underline;
+}
